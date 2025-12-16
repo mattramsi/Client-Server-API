@@ -13,18 +13,15 @@ import (
 )
 
 func main() {
-	// Criar contexto com timeout de 300ms
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 	defer cancel()
 
-	// Fazer requisição GET para o servidor
 	request, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/cotacao", nil)
 	if err != nil {
 		fmt.Println("Erro ao criar requisição:", err)
 		return
 	}
 
-	// Executar a requisição
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		fmt.Println("Erro ao obter cotação:", err)
@@ -32,20 +29,17 @@ func main() {
 	}
 	defer response.Body.Close()
 
-	// Verificar status code
 	if response.StatusCode != http.StatusOK {
 		fmt.Printf("Erro: servidor retornou status %d\n", response.StatusCode)
 		return
 	}
 
-	// Ler o body da resposta
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Erro ao ler resposta:", err)
 		return
 	}
 
-	// Fazer parse do JSON
 	var bidResponse models.BidResponse
 	err = json.Unmarshal(body, &bidResponse)
 	if err != nil {
@@ -54,13 +48,11 @@ func main() {
 		return
 	}
 
-	// Verificar se o contexto foi cancelado
 	select {
 	case <-ctx.Done():
 		fmt.Println("Timeout ao obter cotação (300ms expirado):", ctx.Err())
 		return
 	default:
-		// Exibir o bid recebido
 		fmt.Printf("Bid recebido: %s\n", bidResponse.Bid)
 	}
 

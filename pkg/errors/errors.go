@@ -24,7 +24,6 @@ func ErroTimeout(message string) *AppError {
 	}
 }
 
-// ErroTimeoutContext cria erro de timeout a partir de um contexto
 func ErroTimeoutContext(operation string, err error) *AppError {
 	if err == context.DeadlineExceeded {
 		return &AppError{
@@ -40,7 +39,6 @@ func ErroTimeoutContext(operation string, err error) *AppError {
 	}
 }
 
-// ErroAPI cria erro de chamada à API externa
 func ErroAPI(err error) *AppError {
 	return &AppError{
 		Code:    "API_ERROR",
@@ -49,7 +47,6 @@ func ErroAPI(err error) *AppError {
 	}
 }
 
-// ErroDatabase cria erro de banco de dados
 func ErroDatabase(err error) *AppError {
 	return &AppError{
 		Code:    "DATABASE_ERROR",
@@ -58,7 +55,6 @@ func ErroDatabase(err error) *AppError {
 	}
 }
 
-// ErroValidacao cria erro de validação
 func ErroValidacao(message string) *AppError {
 	return &AppError{
 		Code:    "VALIDATION_ERROR",
@@ -67,7 +63,6 @@ func ErroValidacao(message string) *AppError {
 	}
 }
 
-// ErroInterno cria erro interno genérico
 func ErroInterno(err error) *AppError {
 	return &AppError{
 		Code:    "INTERNAL_ERROR",
@@ -76,7 +71,6 @@ func ErroInterno(err error) *AppError {
 	}
 }
 
-// ErroNotFound cria erro de recurso não encontrado
 func ErroNotFound(resource string) *AppError {
 	return &AppError{
 		Code:    "NOT_FOUND",
@@ -85,7 +79,6 @@ func ErroNotFound(resource string) *AppError {
 	}
 }
 
-// GetHTTPStatus mapeia o código do erro para status HTTP apropriado
 func GetHTTPStatus(err error) int {
 	var appErr *AppError
 	if !As(err, &appErr) {
@@ -110,7 +103,6 @@ func GetHTTPStatus(err error) int {
 	}
 }
 
-// As verifica se o erro é do tipo AppError (usa errors.As do pacote padrão)
 func As(err error, target **AppError) bool {
 	return stderrors.As(err, target)
 }

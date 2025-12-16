@@ -5,9 +5,9 @@ import (
 	"context"
 )
 
-// CotacaoRepository define o contrato para repositórios de cotação
 type CotacaoRepository interface {
 	Save(ctx context.Context, cotacao *models.Cotacao) error
 	FindByID(ctx context.Context, id int64) (*models.Cotacao, error)
 }
+
 

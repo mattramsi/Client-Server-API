@@ -6,32 +6,27 @@ import (
 	"time"
 )
 
-// Config contém todas as configurações da aplicação
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	API      APIConfig
 }
 
-// ServerConfig contém configurações do servidor HTTP
 type ServerConfig struct {
 	Port string
 }
 
-// DatabaseConfig contém configurações do banco de dados
 type DatabaseConfig struct {
 	DSN            string
 	MaxConnections int
 	Timeout        time.Duration
 }
 
-// APIConfig contém configurações da API externa
 type APIConfig struct {
 	BaseURL string
 	Timeout time.Duration
 }
 
-// LoadConfig carrega configurações das variáveis de ambiente com valores padrão
 func LoadConfig() (*Config, error) {
 	config := &Config{
 		Server:   loadServerConfig(),
@@ -39,7 +34,6 @@ func LoadConfig() (*Config, error) {
 		API:      loadAPIConfig(),
 	}
 
-	// Validação básica
 	if config.API.BaseURL == "" {
 		config.API.BaseURL = "https://economia.awesomeapi.com.br/json/last/USD-BRL"
 	}
@@ -47,7 +41,6 @@ func LoadConfig() (*Config, error) {
 	return config, nil
 }
 
-// loadServerConfig carrega configurações do servidor
 func loadServerConfig() ServerConfig {
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
@@ -59,7 +52,6 @@ func loadServerConfig() ServerConfig {
 	}
 }
 
-// loadDatabaseConfig carrega configurações do banco de dados
 func loadDatabaseConfig() DatabaseConfig {
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
@@ -67,7 +59,7 @@ func loadDatabaseConfig() DatabaseConfig {
 	}
 
 	maxConnectionsStr := os.Getenv("DB_MAX_CONNECTIONS")
-	maxConnections := 10 // Valor padrão
+	maxConnections := 10
 	if maxConnectionsStr != "" {
 		if parsed, err := strconv.Atoi(maxConnectionsStr); err == nil {
 			maxConnections = parsed
@@ -75,7 +67,7 @@ func loadDatabaseConfig() DatabaseConfig {
 	}
 
 	timeoutStr := os.Getenv("DB_TIMEOUT")
-	timeout := 10 * time.Millisecond // Valor padrão
+	timeout := 10 * time.Millisecond
 	if timeoutStr != "" {
 		if parsed, err := time.ParseDuration(timeoutStr); err == nil {
 			timeout = parsed
@@ -89,7 +81,6 @@ func loadDatabaseConfig() DatabaseConfig {
 	}
 }
 
-// loadAPIConfig carrega configurações da API externa
 func loadAPIConfig() APIConfig {
 	baseURL := os.Getenv("API_BASE_URL")
 	if baseURL == "" {
@@ -97,7 +88,7 @@ func loadAPIConfig() APIConfig {
 	}
 
 	timeoutStr := os.Getenv("API_TIMEOUT")
-	timeout := 200 * time.Millisecond // Valor padrão
+	timeout := 200 * time.Millisecond
 	if timeoutStr != "" {
 		if parsed, err := time.ParseDuration(timeoutStr); err == nil {
 			timeout = parsed

@@ -12,26 +12,21 @@ import (
 	"client-server-api/pkg/models"
 )
 
-// SQLiteRepository implementa CotacaoRepository para SQLite
 type SQLiteRepository struct {
 	db      *sql.DB
 	timeout time.Duration
 }
 
-// NewSQLiteRepository cria uma nova instância do repositório SQLite
 func NewSQLiteRepository(cfg config.DatabaseConfig) (*SQLiteRepository, error) {
-	// Abrir conexão (cria pool)
 	db, err := sql.Open("sqlite3", cfg.DSN)
 	if err != nil {
 		return nil, errors.ErroDatabase(err)
 	}
 
-	// Configurar pool
 	db.SetMaxOpenConns(cfg.MaxConnections)
 	db.SetMaxIdleConns(5)
 	db.SetConnMaxLifetime(time.Hour)
 
-	// Testar conexão
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := db.PingContext(ctx); err != nil {
@@ -39,13 +34,11 @@ func NewSQLiteRepository(cfg config.DatabaseConfig) (*SQLiteRepository, error) {
 		return nil, errors.ErroDatabase(err)
 	}
 
-	// Criar repository
 	repo := &SQLiteRepository{
 		db:      db,
 		timeout: cfg.Timeout,
 	}
 
-	// Executar migrations (criar tabela uma vez)
 	if err := repo.migrate(); err != nil {
 		db.Close()
 		return nil, errors.ErroDatabase(err)
@@ -54,9 +47,7 @@ func NewSQLiteRepository(cfg config.DatabaseConfig) (*SQLiteRepository, error) {
 	return repo, nil
 }
 
-// Save salva uma cotação no banco de dados
 func (r *SQLiteRepository) Save(ctx context.Context, cotacao *models.Cotacao) error {
-	// Criar contexto com timeout da config
 	ctxDB, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
@@ -88,7 +79,6 @@ func (r *SQLiteRepository) Save(ctx context.Context, cotacao *models.Cotacao) er
 	return nil
 }
 
-// FindByID busca uma cotação por ID (opcional, para extensão futura)
 func (r *SQLiteRepository) FindByID(ctx context.Context, id int64) (*models.Cotacao, error) {
 	ctxDB, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
@@ -128,12 +118,10 @@ func (r *SQLiteRepository) FindByID(ctx context.Context, id int64) (*models.Cota
 	return &cotacao, nil
 }
 
-// Close fecha o pool de conexões
 func (r *SQLiteRepository) Close() error {
 	return r.db.Close()
 }
 
-// migrate executa as migrations (cria tabela se não existir)
 func (r *SQLiteRepository) migrate() error {
 	createTableSQL := `
 		CREATE TABLE IF NOT EXISTS cotacoes (
@@ -159,4 +147,5 @@ func (r *SQLiteRepository) migrate() error {
 
 	return nil
 }
+
 

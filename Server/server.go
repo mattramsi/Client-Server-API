@@ -20,32 +20,24 @@ func main() {
 
 func cotacaoHandler(w http.ResponseWriter, r *http.Request) {
 
-	// Entry point of the server application
-
 	dolarApiAddress := "https://economia.awesomeapi.com.br/json/last/USD-BRL"
 	_ = dolarApiAddress
 
-	// Criar contexto com timeout de 200ms para bater na API
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	defer cancel() // Importante: sempre chame cancel para liberar recursos
+	defer cancel()
 
-	// Bater na API com o contexto criado
 	request, err := http.NewRequestWithContext(ctx, "GET", dolarApiAddress, nil)
 	if err != nil {
-		// Tratar erro na criação da requisição
 		fmt.Println("Erro ao criar requisição:", err)
 		return
 	}
 
 	request = request.WithContext(ctx)
 
-	// Realizando a chamada à API
-
 	client := &http.Client{}
 	response, err := client.Do(request)
 
 	if err != nil {
-		// Tratar erro na chamada à API (pode ser timeout ou outro erro)
 		fmt.Println("Erro ao chamar API:", err)
 		return
 	}
@@ -68,7 +60,6 @@ func cotacaoHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(dolarResponse.USDBRL.Bid)
 
-	// Verificando se o contexto foi cancelado
 	select {
 	case <-ctx.Done():
 		fmt.Println("Requisição cancelada ou expirou:", ctx.Err())
@@ -77,7 +68,6 @@ func cotacaoHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Resposta da API recebida com status:", response.Status)
 	}
 
-	// Criar contexto novo para gravar no SQLite
 	ctxDB, cancelDB := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	if err != nil {
 		fmt.Println("Erro ao criar contexto para gravar no SQLite:", err)
@@ -85,7 +75,6 @@ func cotacaoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer cancelDB()
 
-	//Gravar no SQLite
 	db, err := sql.Open("sqlite3", ".cotacoes.db")
 	if err != nil {
 		fmt.Println("Erro ao abrir banco de dados:", err)
@@ -116,7 +105,6 @@ func cotacaoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Gravar a cotação do dólar obtida da API no banco de dados
 	insertCotacaoSQL := `
 			INSERT INTO cotacoes (code, codein, name, high, low, var_bid, pct_change, bid, ask, timestamp, create_date)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
